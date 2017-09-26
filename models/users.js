@@ -38,6 +38,19 @@ Users.attachSchema(new SimpleSchema({
       }
     },
   },
+	dingtalk: {
+    type: Object,
+    optional: true,
+    autoValue() { // eslint-disable-line consistent-return
+      if (this.isInsert && !this.isSet) {
+        return {userId: ''};
+      }
+    },
+  },
+	'dingtalk.userId':{
+		type: String,
+    optional: true,
+	},
   profile: {
     type: Object,
     optional: true,
@@ -409,6 +422,8 @@ if (Meteor.isServer) {
       board.addMember(user._id);
       user.addInvite(boardId);
 
+      //TODO: dingtalk send
+
       try {
         const params = {
           user: user.username,
@@ -417,6 +432,7 @@ if (Meteor.isServer) {
           url: board.absoluteUrl(),
         };
         const lang = user.getLanguage();
+
         Email.send({
           to: user.emails[0].address.toLowerCase(),
           from: Accounts.emailTemplates.from,

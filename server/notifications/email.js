@@ -10,6 +10,11 @@ Meteor.startup(() => {
     const text = `${params.user} ${TAPi18n.__(description, quoteParams, user.getLanguage())}\n${params.url}`;
     user.addEmailBuffer(text);
 
+    //TODO: dingtalk send
+    Dingtalk.sendMsg({
+      user: user
+    });
+
     // unlike setTimeout(func, delay, args),
     // Meteor.setTimeout(func, delay) does not accept args :-(
     // so we pass userId with closure

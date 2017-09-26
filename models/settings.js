@@ -99,6 +99,9 @@ if (Meteor.isServer) {
   function sendInvitationEmail (_id){
     const icode = InvitationCodes.findOne(_id);
     const author = Users.findOne(Meteor.userId());
+
+    //TODO: dingtalk send
+
     try {
       const params = {
         email: icode.email,
