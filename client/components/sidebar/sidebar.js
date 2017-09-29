@@ -290,7 +290,7 @@ BlazeComponent.extendComponent({
     Meteor.call('inviteUserToBoard', idNameEmail, boardId, (err, ret) => {
       self.setLoading(false);
       if (err) self.setError(err.error);
-      else if (ret.email) self.setError('email-sent');
+      else if (ret.isSend) self.setError('invite-hasSend');
       else Popup.close();
     });
   },

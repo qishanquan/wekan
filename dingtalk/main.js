@@ -1,10 +1,7 @@
-var dingtalkConfig = {
-  oapiHost: 'https://oapi.dingtalk.com',
-  corpid: 'dingedbefa877a26060b',
-  corpsecret: 'qbH2gXdtSkOlIGBpaE_WGTwZjChgbWu-oh0TopYLihaC_l7IRHqyYhviBFjQlF0d'
-};
+
 
 Dingtalk = {
+  config: {},
   tokenData: {access_token: ''},
   getTimestamp: () => {
     var _date = new Date();
@@ -32,15 +29,27 @@ Dingtalk = {
       cb.success && cb.success();
     }
   },
+  setConfig: ()=>{
+    const setting = Settings.findOne();
+    if(setting && setting.dingtalk){
+      Dingtalk.config = setting.dingtalk;
+      return true;
+    }
+  },
   getToken: (cb) => {
     cb = cb || {};
+
+    if(Dingtalk.setConfig() !== true){
+      return;
+    }
+
     var _options = {
       params: {
-        corpid: dingtalkConfig.corpid,
-        corpsecret: dingtalkConfig.corpsecret
+        corpid: Dingtalk.config.corpid,
+        corpsecret: Dingtalk.config.corpsecret
       }
     };
-    HTTP.get(dingtalkConfig.oapiHost + '/gettoken', _options, (err, res) => {
+    HTTP.get(Dingtalk.config.oapiHost + '/gettoken', _options, (err, res) => {
       if (res && res.statusCode && res.statusCode === 200) {
         if (res.data && res.data.access_token) {
           Dingtalk.tokenData = res.data || {};
@@ -61,11 +70,11 @@ Dingtalk = {
         timestamp: Dingtalk.getTimestamp(),
         format: 'json',
         v: '2.0',
-        msgtype: 'oa',
+        msgtype: 'text',
         agent_id: '1832819',
-        userid_list: 'hj1018,0458345106845003,114964151426232169',
+        userid_list: params.dtIds.join(','),
         to_all_user: false,
-        msgcontent: "{\"message_url\": \"http://kanban.iedu.tech\",\"head\": {\"bgcolor\": \"FFBBBBBB\",\"text\": \"看板消息\"},\"body\": {\"title\": \"正文标题\",\"form\": [{\"key\": \"姓名:\",\"value\": \"德玛西亚\"},{\"key\": \"爱好:\",\"value\": \"打球、听音乐\"}],\"rich\": {\"num\": \"15.6\",\"unit\": \"元\"},\"content\": \"看板内容看板内容看板内容看板内容看板内容xxx\",\"image\": \"@lADOADmaWMzazQKA\",\"file_count\": \"3\",\"author\": \"李四 \"}}"
+        msgcontent: params.text
       }
     };
 

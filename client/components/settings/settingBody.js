@@ -9,6 +9,7 @@ BlazeComponent.extendComponent({
     this.generalSetting = new ReactiveVar(true);
     this.emailSetting = new ReactiveVar(false);
     this.accountSetting = new ReactiveVar(false);
+    this.dingtalkSetting = new ReactiveVar(false);
   },
 
   setError(error) {
@@ -30,7 +31,10 @@ BlazeComponent.extendComponent({
   },
 
   currentSetting(){
-    return Settings.findOne();
+    var ss = Settings.findOne();
+    console.log(666, ss);
+    return ss;
+    // return Settings.findOne();
   },
 
   boards() {
@@ -65,6 +69,7 @@ BlazeComponent.extendComponent({
       this.generalSetting.set('registration-setting' === targetID);
       this.emailSetting.set('email-setting' === targetID);
       this.accountSetting.set('account-setting' === targetID);
+      this.dingtalkSetting.set('dingtalk-setting' === targetID);
     }
   },
 
@@ -101,6 +106,25 @@ BlazeComponent.extendComponent({
     }
   },
 
+  saveDingtalkInfo() {
+    try{
+      const host = $('#dingtalk-host').val().trim();
+      const corpid = $('#dingtalk-corpid').val().trim();
+      const corpsecret = $('#dingtalk-corpsecret').val().trim();
+
+      Settings.update(Settings.findOne()._id, {$set:{
+        'dingtalk.host': host,
+        'dingtalk.corpid': corpid,
+        'dingtalk.corpsecret': corpsecret,
+      }});
+
+      alert('保存成功');
+    }catch(e){
+      console.log(500, e);
+      alert('保存失败');
+    }
+  },
+
   saveMailServerInfo(){
     this.setLoading(true);
     $('li').removeClass('has-error');
@@ -130,6 +154,7 @@ BlazeComponent.extendComponent({
       'click a.js-toggle-board-choose': this.checkBoard,
       'click button.js-email-invite': this.inviteThroughEmail,
       'click button.js-save': this.saveMailServerInfo,
+      'click button.js-dingtalk-save': this.saveDingtalkInfo,
     }];
   },
 }).register('setting');

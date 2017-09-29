@@ -28,6 +28,22 @@ Settings.attachSchema(new SimpleSchema({
     type: String,
     optional: true,
   },
+  dingtalk: {
+    type: [Object],
+    optional: true,
+  },
+  'dingtalk.host': {
+    type: String,
+    optional: true,
+  },
+  'dingtalk.corpid': {
+    type: String,
+    optional: true,
+  },
+  'dingtalk.corpsecret': {
+    type: String,
+    optional: true,
+  },
   createdAt: {
     type: Date,
     denyUpdate: true,
@@ -63,6 +79,8 @@ Settings.before.update((userId, doc, fieldNames, modifier) => {
 if (Meteor.isServer) {
   Meteor.startup(() => {
     const setting = Settings.findOne({});
+    console.log(333, setting);
+
     if(!setting){
       const now = new Date();
       const domain = process.env.ROOT_URL.match(/\/\/(?:www\.)?(.*)?(?:\/)?/)[1];
@@ -99,8 +117,6 @@ if (Meteor.isServer) {
   function sendInvitationEmail (_id){
     const icode = InvitationCodes.findOne(_id);
     const author = Users.findOne(Meteor.userId());
-
-    //TODO: dingtalk send
 
     try {
       const params = {

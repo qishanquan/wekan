@@ -422,27 +422,45 @@ if (Meteor.isServer) {
       board.addMember(user._id);
       user.addInvite(boardId);
 
-      //TODO: dingtalk send
+      const params = {
+        user: user.username,
+        inviter: inviter.username,
+        board: board.title,
+        url: board.absoluteUrl(),
+      };
 
-      try {
-        const params = {
-          user: user.username,
-          inviter: inviter.username,
-          board: board.title,
-          url: board.absoluteUrl(),
-        };
+      Dingtalk.sendMsg({
+        dtIds: [user.dingtalk.userId],
+        to: user.username,
+        from: inviter.username,
+        title: board.title,
+        url: board.absoluteUrl(),
+        text: '看板：用户['+inviter.username+']邀请您加入看板-'+board.title+'，地址：'+board.absoluteUrl()
+      }, {
+        success(){
+          console.log('钉钉消息发送成功！');
+        },
+        error(err){
+          throw new Meteor.Error('dingtalk-send-fail', err);
+        }
+      });
+
+      if(user.emails[0].address){
         const lang = user.getLanguage();
 
-        Email.send({
-          to: user.emails[0].address.toLowerCase(),
-          from: Accounts.emailTemplates.from,
-          subject: TAPi18n.__('email-invite-subject', params, lang),
-          text: TAPi18n.__('email-invite-text', params, lang),
-        });
-      } catch (e) {
-        throw new Meteor.Error('email-fail', e.message);
+        try {
+          Email.send({
+            to: user.emails[0].address.toLowerCase(),
+            from: Accounts.emailTemplates.from,
+            subject: TAPi18n.__('email-invite-subject', params, lang),
+            text: TAPi18n.__('email-invite-text', params, lang),
+          });
+        } catch (e) {
+          throw new Meteor.Error('email-fail', e.message);
+        }
       }
-      return { username: user.username, email: user.emails[0].address };
+
+      return { username: user.username, email: user.emails[0].address, isSend: true};
     },
   });
   Accounts.onCreateUser((options, user) => {

@@ -14,6 +14,9 @@ template(name="setting")
               a.js-setting-menu(data-id="email-setting") {{_ 'email'}}
             li
               a.js-setting-menu(data-id="account-setting") {{_ 'accounts'}}
+            li
+              a.js-setting-menu(data-id="dingtalk-setting") {{_ 'dingtalk'}}
+
         .main-body
           if loading.get
             +spinner
@@ -23,6 +26,8 @@ template(name="setting")
             +email
           else if accountSetting.get
             +accountSettings
+          else if dingtalkSetting.get
+            +dingtalkSettings
 
 template(name="general")
   ul#registration-setting.setting-detail
@@ -96,3 +101,20 @@ template(name='accountSettings')
         span {{_ 'no'}}
     li
       button.js-accounts-save.primary {{_ 'save'}}
+
+
+template(name='dingtalkSettings')
+  ul#dingtalk-setting.setting-detail
+    li.dingtalk-form
+      .title {{_ 'dingtalk-api'}}
+      .description host
+        .form-group
+          input.form-control#dingtalk-host(type="text", placeholder="dingtalk-host" value="{{currentSetting.dingtalk.host}}")
+      .description corpid
+        .form-group
+          input.form-control#dingtalk-corpid(type="text", placeholder="dingtalk-corpid" value="{{currentSetting.dingtalk.corpid}}")
+      .description corpsecret
+        .form-group
+          input.form-control#dingtalk-corpsecret(type="text", placeholder="dingtalk-corpsecret" value="{{currentSetting.dingtalk.corpsecret}}")
+    li
+      button.js-dingtalk-save.primary {{_ 'save'}}
