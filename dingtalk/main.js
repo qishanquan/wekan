@@ -1,9 +1,10 @@
-
-
+/*
+ 封装Dingtalk API by qishanquan
+ */
 Dingtalk = {
   config: {},
   tokenData: {access_token: ''},
-  getTimestamp: () => {
+  getTimestamp(){
     var _date = new Date();
     var year = _date.getFullYear();
     var month = _date.getMonth() + 1;
@@ -14,11 +15,11 @@ Dingtalk = {
 
     return year + '-' + (month < 10 ? '0' + month : month) + '-' + (day < 10 ? '0' + day : day) + ' ' + (hour < 10 ? '0' + hour : hour) + ':' + (minute < 10 ? '0' + minute : minute) + ':' + (second < 10 ? '0' + second : second);
   },
-  checkToken: (cb) => {
+  checkToken(cb){
     cb = cb || {};
     if (!Dingtalk.tokenData.access_token) {
       Dingtalk.getToken({
-        success: () => {
+        success(){
           cb.success && cb.success();
         },
         error: () => {
@@ -29,17 +30,17 @@ Dingtalk = {
       cb.success && cb.success();
     }
   },
-  setConfig: ()=>{
+  setConfig(){
     const setting = Settings.findOne();
-    if(setting && setting.dingtalk){
+    if (setting && setting.dingtalk) {
       Dingtalk.config = setting.dingtalk;
       return true;
     }
   },
-  getToken: (cb) => {
+  getToken(cb){
     cb = cb || {};
 
-    if(Dingtalk.setConfig() !== true){
+    if (Dingtalk.setConfig() !== true) {
       return;
     }
 
@@ -49,7 +50,7 @@ Dingtalk = {
         corpsecret: Dingtalk.config.corpsecret
       }
     };
-    HTTP.get(Dingtalk.config.oapiHost + '/gettoken', _options, (err, res) => {
+    HTTP.get(Dingtalk.config.host + '/gettoken', _options, (err, res) => {
       if (res && res.statusCode && res.statusCode === 200) {
         if (res.data && res.data.access_token) {
           Dingtalk.tokenData = res.data || {};
@@ -61,7 +62,64 @@ Dingtalk = {
       cb.error && cb.error();
     });
   },
-  __sendMsg: (params,cb)=>{
+  _http(method, api, params, _cb){
+    if (Dingtalk.setConfig() !== true) {
+      return;
+    }
+
+    let _uri = Dingtalk.config.host + api + '?access_token=' + Dingtalk.tokenData.access_token;
+    // let _uri = Dingtalk.config.host+api+'?access_token='+Dingtalk.tokenData.access_token+'&userid=043913453929101166';
+    // let _uri = Dingtalk.config.host+api+'?access_token='+Dingtalk.tokenData.access_token+'&department_id=37665399';
+
+    console.log(51239, _uri, params);
+
+    HTTP[method](_uri, params, (error, response) => {
+      console.log('##### http', error, response);
+      _cb && _cb();
+    });
+  },
+  _groupApi: {
+    createGroup(createInfo, cb){
+      let params = {
+        data: {
+          name: createInfo.groupName,
+          owner: createInfo.groupUserId,
+          useridlist: createInfo.groupUserIdList
+        }
+      };
+      Dingtalk._http('post', '/chat/create', params, (err, res) => {
+
+      });
+    },
+
+    sendGroupMsg(sendInfo, cb){
+      let _options = {
+        data: {
+          chatid: sendInfo.groupId,
+          msgtype: 'text',
+          text: {
+            content: sendInfo.msg
+          }
+        }
+      };
+      Dingtalk._http('post', '/chat/send', _options, () => {
+
+      });
+    },
+
+    getUsersByDepartId(departId, cb){
+      Dingtalk._http('get', '/user/simplelist', {}, (err, res) => {
+        console.log(921939, res);
+      });
+    },
+
+    getUser(userId, cb){
+      Dingtalk._http('get', '/user/get', {}, (err, res) => {
+        console.log(921939, res);
+      });
+    }
+  },
+  __sendMsg(params, cb){
     var _url = 'https://eco.taobao.com/router/rest';
     var _options = {
       params: {
@@ -70,28 +128,58 @@ Dingtalk = {
         timestamp: Dingtalk.getTimestamp(),
         format: 'json',
         v: '2.0',
-        msgtype: 'text',
         agent_id: '1832819',
         userid_list: params.dtIds.join(','),
         to_all_user: false,
-        msgcontent: params.text
+        msgtype: 'text',
+        // msgcontent: "{\"message_url\": \"http://dingtalk.com\",\"head\": {\"bgcolor\": \"FFBBBBBB\",\"text\": \"头部标题\"},\"body\": {\"title\": \"正文标题\",\"form\": [{\"key\": \"姓名:\",\"value\": \"张三\"},{\"key\": \"爱好:\",\"value\": \"打球、听音乐\"}],\"rich\": {\"num\": \"15.6\",\"unit\": \"元\"},\"content\": \"大段文本大段文本大段文本大段文本大段文本大段文本大段文本大段文本大段文本大段文本大段文本大段文本\",\"image\": \"@lADOADmaWMzazQKA\",\"file_count\": \"3\",\"author\": \"李四 \"}}"
+        msgcontent: "{\"content\":\"" + params.text.replace(/\"/g, '\\"') + "\"}"
       }
     };
 
     HTTP.get(_url, _options, (err, res) => {
+      console.log(6666, err, res);
       if (res && res.statusCode && res.statusCode === 200) {
+        if (res.data && res.data['dingtalk_corp_message_corpconversation_asyncsend_response']) {
+          console.dir(res.data['dingtalk_corp_message_corpconversation_asyncsend_response'].result);
+        }
         cb.success && cb.success();
-      }else{
+      } else {
         console.log(err, res);
         cb.error && cb.error();
       }
     });
   },
-  sendMsg: (params,cb) => {
+  sendMsg(params, cb){
     cb = cb || {};
 
-    Dingtalk.checkToken({success:()=>{
-      Dingtalk.__sendMsg(params, cb);
-    }});
+    Dingtalk.checkToken({
+      success(){
+        Dingtalk.__sendMsg(params, cb);
+      }
+    });
+  },
+  testSend(){
+    Dingtalk.checkToken({
+      success(){
+        // Dingtalk._groupApi.createGroup({
+        //   groupName: 'test_for_wekan',
+        //   groupUserId: '022318365437382784',
+        //   groupUserIdList: ['hy1018']
+        // },()=>{
+        //   console.log('### finish');
+        // });
+
+        Dingtalk._groupApi.sendGroupMsg({
+          groupId: 'chat7e982ae9fbdced0e4a246807117c22aa',
+          msg: "Hello World",
+        }, () => {
+          console.log('### finish');
+        });
+
+        // Dingtalk._groupApi.getUsersByDepartId();
+        // Dingtalk._groupApi.getUser();
+      }
+    });
   }
 }

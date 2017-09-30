@@ -1,6 +1,7 @@
 Meteor.subscribe('setting');
 Meteor.subscribe('mailServer');
 Meteor.subscribe('accountSettings');
+Meteor.subscribe('dingtalkSetting');
 
 BlazeComponent.extendComponent({
   onCreated() {
@@ -31,10 +32,7 @@ BlazeComponent.extendComponent({
   },
 
   currentSetting(){
-    var ss = Settings.findOne();
-    console.log(666, ss);
-    return ss;
-    // return Settings.findOne();
+    return Settings.findOne();
   },
 
   boards() {
@@ -120,7 +118,7 @@ BlazeComponent.extendComponent({
 
       alert('保存成功');
     }catch(e){
-      console.log(500, e);
+      console.log(e);
       alert('保存失败');
     }
   },
@@ -143,7 +141,6 @@ BlazeComponent.extendComponent({
     } finally {
       this.setLoading(false);
     }
-
   },
 
   events(){

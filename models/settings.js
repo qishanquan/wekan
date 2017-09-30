@@ -79,8 +79,6 @@ Settings.before.update((userId, doc, fieldNames, modifier) => {
 if (Meteor.isServer) {
   Meteor.startup(() => {
     const setting = Settings.findOne({});
-    console.log(333, setting);
-
     if(!setting){
       const now = new Date();
       const domain = process.env.ROOT_URL.match(/\/\/(?:www\.)?(.*)?(?:\/)?/)[1];

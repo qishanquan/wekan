@@ -11,3 +11,13 @@ Meteor.publish('mailServer', function () {
   }
   return [];
 });
+
+Meteor.publish('dingtalkSetting', function () {
+  if (!Match.test(this.userId, String))
+    return [];
+  const user = Users.findOne(this.userId);
+  if(user && user.isAdmin){
+    return Settings.find({}, {fields: {dingtalk: 1}});
+  }
+  return [];
+});
