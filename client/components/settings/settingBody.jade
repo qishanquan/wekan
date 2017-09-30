@@ -107,14 +107,17 @@ template(name='dingtalkSettings')
   ul#dingtalk-setting.setting-detail
     li.dingtalk-form
       .title {{_ 'dingtalk-api'}}
-      .description host
+      .description {{_ 'dingtalk-host'}}
         .form-group
           input.form-control#dingtalk-host(type="text", placeholder="dingtalk-host" value="{{currentSetting.dingtalk.host}}")
-      .description corpid
+      .description {{_ 'dingtalk-corpid'}}
         .form-group
           input.form-control#dingtalk-corpid(type="text", placeholder="dingtalk-corpid" value="{{currentSetting.dingtalk.corpid}}")
-      .description corpsecret
+      .description {{_ 'dingtalk-corpsecret'}}
         .form-group
           input.form-control#dingtalk-corpsecret(type="text", placeholder="dingtalk-corpsecret" value="{{currentSetting.dingtalk.corpsecret}}")
+      .description {{_ 'dingtalk-chatid'}}
+        .form-group
+          input.form-control#dingtalk-chatid(type="text", placeholder="dingtalk-chatid" value="{{currentSetting.dingtalk.chatid}}")
     li
       button.js-dingtalk-save.primary {{_ 'save'}}

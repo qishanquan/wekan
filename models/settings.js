@@ -44,6 +44,10 @@ Settings.attachSchema(new SimpleSchema({
     type: String,
     optional: true,
   },
+  'dingtalk.chatid': {
+    type: String,
+    optional: true,
+  },
   createdAt: {
     type: Date,
     denyUpdate: true,

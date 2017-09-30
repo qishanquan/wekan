@@ -109,11 +109,13 @@ BlazeComponent.extendComponent({
       const host = $('#dingtalk-host').val().trim();
       const corpid = $('#dingtalk-corpid').val().trim();
       const corpsecret = $('#dingtalk-corpsecret').val().trim();
+      const chatid = $('#dingtalk-chatid').val().trim();
 
       Settings.update(Settings.findOne()._id, {$set:{
         'dingtalk.host': host,
         'dingtalk.corpid': corpid,
         'dingtalk.corpsecret': corpsecret,
+        'dingtalk.chatid': chatid
       }});
 
       alert('保存成功');

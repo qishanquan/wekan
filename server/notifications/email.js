@@ -1,11 +1,6 @@
 // buffer each user's email text in a queue, then flush them in single email
 Meteor.startup(() => {
   Notifications.subscribe('email', (user, title, description, params) => {
-    //TODO: dev
-    Dingtalk.testSend();
-    return;
-    //TODO: end
-
     // add quote to make titles easier to read in email text
     const quoteParams = _.clone(params);
     ['card', 'list', 'oldList', 'board', 'comment'].forEach((key) => {

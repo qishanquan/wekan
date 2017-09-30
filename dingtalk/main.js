@@ -92,18 +92,18 @@ Dingtalk = {
       });
     },
 
-    sendGroupMsg(sendInfo, cb){
+    sendGroupMsg(msg, cb){
       let _options = {
         data: {
-          chatid: sendInfo.groupId,
+          chatid: Dingtalk.config.chatid,
           msgtype: 'text',
           text: {
-            content: sendInfo.msg
+            content: msg
           }
         }
       };
       Dingtalk._http('post', '/chat/send', _options, () => {
-
+        cb && cb.success();
       });
     },
 
@@ -155,7 +155,9 @@ Dingtalk = {
 
     Dingtalk.checkToken({
       success(){
-        Dingtalk.__sendMsg(params, cb);
+        // Dingtalk.__sendMsg(params, cb);
+
+        Dingtalk._groupApi.sendGroupMsg(params.text, cb);
       }
     });
   },
@@ -170,12 +172,12 @@ Dingtalk = {
         //   console.log('### finish');
         // });
 
-        Dingtalk._groupApi.sendGroupMsg({
-          groupId: 'chat7e982ae9fbdced0e4a246807117c22aa',
-          msg: "Hello World",
-        }, () => {
-          console.log('### finish');
-        });
+        // Dingtalk._groupApi.sendGroupMsg({
+        //   groupId: Dingtalk.config.chatid,
+        //   msg: "Hello World",
+        // }, () => {
+        //   console.log('### finish');
+        // });
 
         // Dingtalk._groupApi.getUsersByDepartId();
         // Dingtalk._groupApi.getUser();
