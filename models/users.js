@@ -434,8 +434,8 @@ if (Meteor.isServer) {
       };
 
       if(user.dingtalk && user.dingtalk.userId){
-        let text = '用户\"'+inviter.username+'\"邀请您加入看板：'+board.title+'，地址：'+board.absoluteUrl();
-        Dingtalk.sendMsg({ user: user, text: `[看板] ${text}` });
+        let text = '用户 \"'+inviter.username+'\" 邀请 \"'+user.username+'\" 加入看板 \"'+board.title+' \"';
+        Dingtalk.sendMsg({ user: user, text: `[看板] ${text}`, link: board.absoluteUrl() });
       }
 
       if(user.emails[0].address){

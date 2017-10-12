@@ -11,7 +11,8 @@ Meteor.startup(() => {
     user.addEmailBuffer(text);
 
     if(user.dingtalk && user.dingtalk.userId){
-      Dingtalk.sendMsg({ user: user, text: `[看板] ${text}` });
+      let dingText = `用户 "${params.user}" ${TAPi18n.__(description, quoteParams, user.getLanguage())}`;
+      Dingtalk.sendMsg({ user: user, text: `[看板] ${dingText}`, link: params.url });
     }
 
     // unlike setTimeout(func, delay, args),

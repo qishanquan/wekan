@@ -122,9 +122,21 @@ Dingtalk = {
       let _options = {
         data: {
           chatid: _chatid,
-          msgtype: 'text',
-          text: {
-            content: _msg
+          // msgtype: 'text',
+          // text: {
+          //   content: _msg
+          // }
+          // "msgtype": "link",
+          // "link": {
+          //   "messageUrl": params.link,
+          //   "picUrl":"@lALOACZwe2Rk",
+          //   "title": "消息xxx",
+          //   "text": _msg
+          // }
+          "msgtype": "markdown",
+          "markdown": {
+            "title": _msg,
+            "text": "["+_msg+"]("+params.link+")"
           }
         }
       };
@@ -152,9 +164,7 @@ Dingtalk = {
     // }
   },
   __sendMsg(params, cb){
-    if (Dingtalk.config.agentid) {
 
-    }
     var _url = 'https://eco.taobao.com/router/rest';
     var _options = {
       params: {
