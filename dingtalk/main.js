@@ -17,50 +17,52 @@ Dingtalk = {
   },
   checkToken(cb){
     cb = cb || {};
-    if (!Dingtalk.tokenData.access_token) {
-      Dingtalk.getToken({
-        success(){
-          cb.success && cb.success();
-        },
-        error: () => {
-          cb.error && cb.error();
-        }
-      });
-    } else {
-      cb.success && cb.success();
-    }
+
+    // if (!Dingtalk.tokenData.access_token) {
+    Dingtalk.getToken({
+      success(){
+        cb.success && cb.success();
+      },
+      error: () => {
+        cb.error && cb.error();
+      }
+    });
+    // } else {
+    //   cb.success && cb.success();
+    // }
   },
   setConfig(){
     const setting = Settings.findOne();
     if (setting && setting.dingtalk) {
       Dingtalk.config = setting.dingtalk;
       return true;
+    } else {
+      console.log('【ERROR】未设置钉钉配置');
+      return false;
     }
   },
   getToken(cb){
     cb = cb || {};
 
-    if (Dingtalk.setConfig() !== true) {
-      return;
-    }
-
-    var _options = {
-      params: {
-        corpid: Dingtalk.config.corpid,
-        corpsecret: Dingtalk.config.corpsecret
-      }
-    };
-    HTTP.get(Dingtalk.config.host + '/gettoken', _options, (err, res) => {
-      if (res && res.statusCode && res.statusCode === 200) {
-        if (res.data && res.data.access_token) {
-          Dingtalk.tokenData = res.data || {};
-          cb.success && cb.success();
-          return;
+    if (Dingtalk.setConfig()) {
+      var _options = {
+        params: {
+          corpid: Dingtalk.config.corpid,
+          corpsecret: Dingtalk.config.corpsecret
         }
-      }
-      console.log(res);
-      cb.error && cb.error();
-    });
+      };
+      HTTP.get(Dingtalk.config.host + '/gettoken', _options, (err, res) => {
+        if (res && res.statusCode && res.statusCode === 200) {
+          if (res.data && res.data.errcode === 0) {
+            Dingtalk.tokenData.access_token = res.data.access_token;
+            cb.success && cb.success();
+            return;
+          }
+        }
+        console.log('【ERROR】token获取失败', res);
+        cb.error && cb.error();
+      });
+    }
   },
   _http(method, api, params, _cb){
     if (Dingtalk.setConfig() !== true) {
@@ -71,55 +73,88 @@ Dingtalk = {
     // let _uri = Dingtalk.config.host+api+'?access_token='+Dingtalk.tokenData.access_token+'&userid=043913453929101166';
     // let _uri = Dingtalk.config.host+api+'?access_token='+Dingtalk.tokenData.access_token+'&department_id=37665399';
 
-    console.log(51239, _uri, params);
-
-    HTTP[method](_uri, params, (error, response) => {
-      console.log('##### http', error, response);
-      _cb && _cb();
+    HTTP[method](_uri, params, (error, res) => {
+      if (res && res.statusCode == 200 && res.data && res.data.errcode === 0) {
+        console.log('##### http success', res.data);
+        _cb(true, res.data);
+      } else {
+        console.log('##### http fail', _uri, params, error, res);
+        _cb(false);
+      }
     });
   },
   _groupApi: {
-    createGroup(createInfo, cb){
+    createUserGroup(user, cb){
       let params = {
         data: {
-          name: createInfo.groupName,
-          owner: createInfo.groupUserId,
-          useridlist: createInfo.groupUserIdList
+          name: '【看板】应用',
+          owner: user.dingtalk.userId,
+          useridlist: [user.dingtalk.userId]
         }
       };
-      Dingtalk._http('post', '/chat/create', params, (err, res) => {
-
+      Dingtalk._http('post', '/chat/create', params, (isSuccess, data) => {
+        if (isSuccess) { //更新至数据库user
+          Users.update(user._id, {
+            $set: {
+              'dingtalk.chatid': data.chatid
+            }
+          });
+          cb(data.chatid);
+        }
       });
     },
 
-    sendGroupMsg(msg, cb){
+    checkUserChatid(user, checkCb){
+      if (user.dingtalk.chatid) {
+        checkCb();
+      } else {
+        Dingtalk._groupApi.createUserGroup(user, (chatid) => {
+          checkCb(chatid);
+        });
+      }
+    },
+
+    sendGroupMsg(params, cb){
+      let _user = params.user,
+        _chatid = params.user.dingtalk.chatid,
+        _msg = params.text;
+
       let _options = {
         data: {
-          chatid: Dingtalk.config.chatid,
+          chatid: _chatid,
           msgtype: 'text',
           text: {
-            content: msg
+            content: _msg
           }
         }
       };
-      Dingtalk._http('post', '/chat/send', _options, () => {
-        cb && cb.success();
+      Dingtalk._http('post', '/chat/send', _options, (isSuccess, data) => {
+        if(isSuccess){
+          cb && cb(true);
+          console.log('钉钉消息发送成功！', _user.username);
+        }else{
+          cb && cb(false);
+          console.error('钉钉消息发送失败！', _user.username);
+        }
       });
     },
 
-    getUsersByDepartId(departId, cb){
-      Dingtalk._http('get', '/user/simplelist', {}, (err, res) => {
-        console.log(921939, res);
-      });
-    },
+    // getUsersByDepartId(departId, cb){
+    //   Dingtalk._http('get', '/user/simplelist', {}, (err, res) => {
+    //     console.log(921939, res);
+    //   });
+    // },
 
-    getUser(userId, cb){
-      Dingtalk._http('get', '/user/get', {}, (err, res) => {
-        console.log(921939, res);
-      });
-    }
+    // getUser(userId, cb){
+    //   Dingtalk._http('get', '/user/get', {}, (err, res) => {
+    //     console.log(921939, res);
+    //   });
+    // }
   },
   __sendMsg(params, cb){
+    if (Dingtalk.config.agentid) {
+
+    }
     var _url = 'https://eco.taobao.com/router/rest';
     var _options = {
       params: {
@@ -128,7 +163,7 @@ Dingtalk = {
         timestamp: Dingtalk.getTimestamp(),
         format: 'json',
         v: '2.0',
-        agent_id: '1832819',
+        agent_id: Dingtalk.config.agentid,
         userid_list: params.dtIds.join(','),
         to_all_user: false,
         msgtype: 'text',
@@ -151,13 +186,16 @@ Dingtalk = {
     });
   },
   sendMsg(params, cb){
-    cb = cb || {};
-
     Dingtalk.checkToken({
       success(){
         // Dingtalk.__sendMsg(params, cb);
 
-        Dingtalk._groupApi.sendGroupMsg(params.text, cb);
+        Dingtalk._groupApi.checkUserChatid(params.user, (chatid) => {
+          if (chatid) {
+            params.user.dingtalk.chatid = chatid;
+          }
+          Dingtalk._groupApi.sendGroupMsg(params, cb);
+        });
       }
     });
   },

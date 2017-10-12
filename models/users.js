@@ -48,9 +48,13 @@ Users.attachSchema(new SimpleSchema({
     },
   },
 	'dingtalk.userId':{
-		type: String,
+    type: String,
     optional: true,
-	},
+  },
+  'dingtalk.chatid':{
+    type: String,
+    optional: true,
+  },
   profile: {
     type: Object,
     optional: true,
@@ -429,21 +433,10 @@ if (Meteor.isServer) {
         url: board.absoluteUrl(),
       };
 
-      Dingtalk.sendMsg({
-        dtIds: [user.dingtalk.userId],
-        to: user.username,
-        from: inviter.username,
-        title: board.title,
-        url: board.absoluteUrl(),
-        text: '看板：用户['+inviter.username+']邀请您加入看板-'+board.title+'，地址：'+board.absoluteUrl()
-      }, {
-        success(){
-          console.log('钉钉消息发送成功！');
-        },
-        error(err){
-          throw new Meteor.Error('dingtalk-send-fail', err);
-        }
-      });
+      if(user.dingtalk && user.dingtalk.userId){
+        let text = '用户\"'+inviter.username+'\"邀请您加入看板：'+board.title+'，地址：'+board.absoluteUrl();
+        Dingtalk.sendMsg({ user: user, text: `[看板] ${text}` });
+      }
 
       if(user.emails[0].address){
         const lang = user.getLanguage();

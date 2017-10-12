@@ -119,5 +119,8 @@ template(name='dingtalkSettings')
       .description {{_ 'dingtalk-chatid'}}
         .form-group
           input.form-control#dingtalk-chatid(type="text", placeholder="dingtalk-chatid" value="{{currentSetting.dingtalk.chatid}}")
+      .description {{_ 'dingtalk-agentid'}}
+        .form-group
+          input.form-control#dingtalk-agentid(type="text", placeholder="dingtalk-agentid" value="{{currentSetting.dingtalk.agentid}}")
     li
       button.js-dingtalk-save.primary {{_ 'save'}}

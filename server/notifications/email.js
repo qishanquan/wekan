@@ -10,17 +10,9 @@ Meteor.startup(() => {
     const text = `${params.user} ${TAPi18n.__(description, quoteParams, user.getLanguage())}\n${params.url}`;
     user.addEmailBuffer(text);
 
-    Dingtalk.sendMsg({
-      dtIds: [user.dingtalk.userId],
-      text: `[看板] ${text}`
-    }, {
-      success(){
-        console.log('钉钉消息发送成功！');
-      },
-      error(err){
-        throw new Meteor.Error('dingtalk-send-fail', err);
-      }
-    });
+    if(user.dingtalk && user.dingtalk.userId){
+      Dingtalk.sendMsg({ user: user, text: `[看板] ${text}` });
+    }
 
     // unlike setTimeout(func, delay, args),
     // Meteor.setTimeout(func, delay) does not accept args :-(

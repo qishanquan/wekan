@@ -191,6 +191,7 @@
     "dingtalk-corpid": "corpid",
     "dingtalk-corpsecret": "corpsecret",
     "dingtalk-chatid": "群组chatid",
+    "dingtalk-agentid": "微应用agentid",
     "dingtalk-send-fail": "钉钉通知发送失败",
     "invite-send": "发送邮件邀请",
     "invite-hasSend": "通知已发送",
