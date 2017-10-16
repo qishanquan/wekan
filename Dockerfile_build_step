@@ -69,7 +69,7 @@ COPY ${SRC_PATH} /home/wekan/app
     # Change user to wekan and install meteor
     cd /home/wekan/ && \
     chown wekan:wekan --recursive /home/wekan && \
-    curl https://install.meteor.com -o ./install_meteor.sh && \
+#    curl https://install.meteor.com -o ./install_meteor.sh && \
     sed -i "s|RELEASE=.*|RELEASE=${METEOR_RELEASE}\"\"|g" ./install_meteor.sh && \
     echo "Starting meteor ${METEOR_RELEASE} installation...   \n" && \
     chown wekan:wekan ./install_meteor.sh && \

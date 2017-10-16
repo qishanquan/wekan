@@ -109,38 +109,32 @@ Dingtalk = {
         checkCb();
       } else {
         Dingtalk._groupApi.createUserGroup(user, (chatid) => {
-          checkCb(chatid);
+          user.dingtalk.chatid = chatid;
+          checkCb(true);
         });
       }
     },
 
     sendGroupMsg(params, cb){
-      let _user = params.user,
-        _chatid = params.user.dingtalk.chatid,
-        _msg = params.text;
+      let _user = params.user;
 
-      let _options = {
-        data: {
-          chatid: _chatid,
-          // msgtype: 'text',
-          // text: {
-          //   content: _msg
-          // }
-          // "msgtype": "link",
-          // "link": {
-          //   "messageUrl": params.link,
-          //   "picUrl":"@lALOACZwe2Rk",
-          //   "title": "消息xxx",
-          //   "text": _msg
-          // }
-          "msgtype": "markdown",
-          "markdown": {
-            "title": _msg,
-            "text": "["+_msg+"]("+params.link+")"
-          }
-        }
-      };
-      Dingtalk._http('post', '/chat/send', _options, (isSuccess, data) => {
+      let _data = {};
+      _data.chatid = params.user.dingtalk.chatid;
+
+      if(params.link){
+        _data.msgtype = 'markdown';
+        _data.markdown = {
+          "title": params.text,
+          "text": "["+params.text+"]("+params.link+")"
+        };
+      }else{
+        _data.msgtype = 'text';
+        _data.text = {
+          "content": params.text
+        };
+      }
+
+      Dingtalk._http('post', '/chat/send', {data: _data}, (isSuccess, data) => {
         if(isSuccess){
           cb && cb(true);
           console.log('钉钉消息发送成功！', _user.username);
@@ -200,9 +194,12 @@ Dingtalk = {
       success(){
         // Dingtalk.__sendMsg(params, cb);
 
-        Dingtalk._groupApi.checkUserChatid(params.user, (chatid) => {
-          if (chatid) {
-            params.user.dingtalk.chatid = chatid;
+        Dingtalk._groupApi.checkUserChatid(params.user, (isFirst) => {
+          if(isFirst){ //首次创建群组
+            Dingtalk._groupApi.sendGroupMsg({
+              user: params.user,
+              text: '欢迎使用看板，该群是用来收取与您相关的看板消息，请勿解散（若解散需进行重置）！'
+            });
           }
           Dingtalk._groupApi.sendGroupMsg(params, cb);
         });
