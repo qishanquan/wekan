@@ -16,6 +16,8 @@ template(name="setting")
               a.js-setting-menu(data-id="account-setting") {{_ 'accounts'}}
             li
               a.js-setting-menu(data-id="dingtalk-setting") {{_ 'dingtalk'}}
+            li
+              a.js-setting-menu(data-id="userManage-setting") {{_ 'user-manage'}}
 
         .main-body
           if loading.get
@@ -28,6 +30,8 @@ template(name="setting")
             +accountSettings
           else if dingtalkSetting.get
             +dingtalkSettings
+          else if userManageSetting.get
+            +userManageSettings
 
 template(name="general")
   ul#registration-setting.setting-detail
@@ -124,3 +128,30 @@ template(name='dingtalkSettings')
           input.form-control#dingtalk-agentid(type="text", placeholder="dingtalk-agentid" value="{{currentSetting.dingtalk.agentid}}")
     li
       button.js-dingtalk-save.primary {{_ 'save'}}
+
+template(name='userManageSettings')
+  table
+    thead
+      tr
+        th id
+        th 用户名
+        th 邮箱
+        th 是否管理员
+        th 钉钉userId
+        th 钉钉chatid
+        th 操作
+    tbody
+      each userManageList
+        tr(userId=_id)
+          td= _id
+          td= username
+          td
+            input.email-address(type="text", value="{{emails.[0].address}}")
+          td= isAdmin
+          td
+            input.dingtalk-userId(type="text", value="{{dingtalk.userId}}")
+          td
+            input.dingtalk-chatid(type="text", value="{{dingtalk.chatid}}")
+          td
+            //button.js-reset-password 重置密码
+            button.js-userinfo-save 保存

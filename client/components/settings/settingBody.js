@@ -2,6 +2,7 @@ Meteor.subscribe('setting');
 Meteor.subscribe('mailServer');
 Meteor.subscribe('accountSettings');
 Meteor.subscribe('dingtalkSetting');
+Meteor.subscribe('user-manage-list');
 
 BlazeComponent.extendComponent({
   onCreated() {
@@ -11,6 +12,7 @@ BlazeComponent.extendComponent({
     this.emailSetting = new ReactiveVar(false);
     this.accountSetting = new ReactiveVar(false);
     this.dingtalkSetting = new ReactiveVar(false);
+    this.userManageSetting = new ReactiveVar(false);
   },
 
   setError(error) {
@@ -33,6 +35,10 @@ BlazeComponent.extendComponent({
 
   currentSetting(){
     return Settings.findOne();
+  },
+
+  userManageList(){
+    return Users.find();
   },
 
   boards() {
@@ -68,6 +74,7 @@ BlazeComponent.extendComponent({
       this.emailSetting.set('email-setting' === targetID);
       this.accountSetting.set('account-setting' === targetID);
       this.dingtalkSetting.set('dingtalk-setting' === targetID);
+      this.userManageSetting.set('userManage-setting' === targetID);
     }
   },
 
@@ -127,6 +134,22 @@ BlazeComponent.extendComponent({
     }
   },
 
+  resetPassword(event){
+    let trNode = $(event.target).parent().parent(); //tr
+    Meteor.call('resetUserPwd', trNode.attr('userId'));
+  },
+
+  saveUserInfo(event){
+    let trNode = $(event.target).parent().parent(); //tr
+
+    Meteor.call('updateUserInfo',{
+      userId: trNode.attr('userId'),
+      email: trNode.find('.email-address').val(),
+      dingtalkUserId: trNode.find('.dingtalk-userId').val(),
+      dingtalkChatid: trNode.find('.dingtalk-chatid').val()
+    });
+  },
+
   saveMailServerInfo(){
     this.setLoading(true);
     $('li').removeClass('has-error');
@@ -156,6 +179,8 @@ BlazeComponent.extendComponent({
       'click button.js-email-invite': this.inviteThroughEmail,
       'click button.js-save': this.saveMailServerInfo,
       'click button.js-dingtalk-save': this.saveDingtalkInfo,
+      'click button.js-reset-password': this.resetPassword,
+      'click button.js-userinfo-save': this.saveUserInfo,
     }];
   },
 }).register('setting');

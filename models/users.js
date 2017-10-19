@@ -409,7 +409,8 @@ if (Meteor.isServer) {
         // Set in lowercase email before creating account
         const email = username.toLowerCase();
         username = email.substring(0, posAt);
-        const newUserId = Accounts.createUser({ username, email });
+        const password = 123456;
+        const newUserId = Accounts.createUser({ username, email, password});
         if (!newUserId) throw new Meteor.Error('error-user-notCreated');
         // assume new user speak same language with inviter
         if (inviter.profile && inviter.profile.language) {
@@ -455,6 +456,28 @@ if (Meteor.isServer) {
 
       return { username: user.username, email: user.emails[0].address, isSend: true};
     },
+
+    resetUserPwd(userId){
+      check(userId, String);
+      //todo
+
+    },
+
+    updateUserInfo(info){
+      check(info, Object);
+      console.log('updateUserInfo', info);
+
+      Users.update(info.userId, {
+        $set: {
+          emails: [{
+            address: info.email,
+            verified: false,
+          }],
+          'dingtalk.userId': info.dingtalkUserId,
+          'dingtalk.chatid': info.dingtalkChatid
+        }
+      });
+    }
   });
   Accounts.onCreateUser((options, user) => {
     const userCount = Users.find().count();

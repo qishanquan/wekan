@@ -165,6 +165,6 @@ if (Meteor.isServer) {
           });
         }
       });
-    },
+    }
   });
 }

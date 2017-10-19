@@ -17,3 +17,7 @@ Meteor.publish('user-admin', function() {
     },
   });
 });
+
+Meteor.publish('user-manage-list', function() {
+  return Meteor.users.find({});
+});
