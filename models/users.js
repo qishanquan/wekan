@@ -60,7 +60,9 @@ Users.attachSchema(new SimpleSchema({
     optional: true,
     autoValue() { // eslint-disable-line consistent-return
       if (this.isInsert && !this.isSet) {
-        return {};
+        return {
+          tags:  ['notify-participate','notify-watch']
+        };
       }
     },
   },
@@ -588,6 +590,7 @@ if (Meteor.isServer) {
         if (!doc.profile) {
           doc.profile = {};
         }
+        doc.profile.tags = ['notify-participate','notify-watch'];
         doc.profile.invitedBoards = invitationCode.boardsToBeInvited;
         Users.update(doc._id, { $set: { profile: doc.profile } });
         InvitationCodes.update(invitationCode._id, { $set: { valid: false } });
