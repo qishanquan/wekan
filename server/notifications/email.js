@@ -12,13 +12,16 @@ Meteor.startup(() => {
       if (quoteParams[key]) quoteParams[key] = `"${params[key]}"`;
     });
 
-    const text = `${params.user} ${TAPi18n.__(description, quoteParams, user.getLanguage())}\n${params.url}`;
-    user.addEmailBuffer(text);
-
+    //发送钉钉消息
     if(user.dingtalk && user.dingtalk.userId){
       let dingText = `用户 "${params.user}" ${TAPi18n.__(description, quoteParams, user.getLanguage())}`;
-      Dingtalk.sendMsg({ user: user, text: `[看板] ${dingText}`, link: params.url });
+      Dingtalk.sendMsg({ user: user, text: `[看板 - ${params.board}] ${dingText}`, link: params.url });
     }
+
+    return; //forbidden email
+
+    const text = `${params.user} ${TAPi18n.__(description, quoteParams, user.getLanguage())}\n${params.url}`;
+    user.addEmailBuffer(text);
 
     // unlike setTimeout(func, delay, args),
     // Meteor.setTimeout(func, delay) does not accept args :-(

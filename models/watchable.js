@@ -32,7 +32,8 @@ const simpleWatchable = (collection) => {
 
 // more complex version of same interface, with 3 watching levels
 const complexWatchOptions = ['watching', 'tracking', 'muted'];
-const complexWatchDefault = 'muted';
+// const complexWatchDefault = 'muted';
+const complexWatchDefault = 'tracking'; //modify by qisq
 
 const complexWatchable = (collection) => {
   collection.attachSchema({

@@ -89,7 +89,7 @@
 #    apt-get autoremove -y && \
 #    rm -R /home/wekan/wekan-files
 
-#### docker build ./ -t wekan-docker:1.0 ########
+#### docker build ./ -t wekan-docker:1.1 ########
 
 FROM wekan-debian:1.0
 
@@ -99,15 +99,7 @@ RUN \
     # Build app
     chown wekan:wekan --recursive /home/wekan && \
     cd /home/wekan/app && \
-    gosu wekan:wekan /home/wekan/.meteor/meteor add standard-minifier-js && \
     gosu wekan:wekan /home/wekan/.meteor/meteor npm install && \
-    gosu wekan:wekan /home/wekan/.meteor/meteor npm install --save jquery meteor-babel-helpers source-map \
-    coffee-script meteor-ecmascript-runtime reify meteor-promise fibers promise \
-    es5-shim page cli-color bcryptjs lolex underscore load-script core-js@2.4.1 && \
-    \
-    #删除没用文件（致使npm install capp 失败）
-    rm -f /home/wekan/app/sandstorm.js && \
-    \
     gosu wekan:wekan /home/wekan/.meteor/meteor build --directory /home/wekan/app_build && \
     cp /home/wekan/app/fix-download-unicode/cfs_access-point.txt /home/wekan/app_build/bundle/programs/server/packages/cfs_access-point.js && \
     chown wekan:wekan /home/wekan/app_build/bundle/programs/server/packages/cfs_access-point.js && \
